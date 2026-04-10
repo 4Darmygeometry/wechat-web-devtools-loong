@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        ARCH: ['x86_64']
+        ARCH: ['x64', 'loongarch64']
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -39,8 +39,12 @@ jobs:
       # gpg --export-secret-keys YOUR_ID_HERE | base64 > private.key
       - name: Configure GPG Key
         run: |
-          echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
-          gpg --list-secret-keys jiyecafe@gmail.com
+          if [ -n "$GPG_SIGNING_KEY" ]; then
+            echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+            gpg --list-secret-keys jiyecafe@gmail.com
+          else
+            echo "No GPG signing key provided, skipping GPG setup"
+          fi
         env:
           GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
 
@@ -52,9 +56,10 @@ jobs:
       - name: Build Deb Package
         run: |
           export BUILD_VERSION=${{ steps.tag.outputs.tag }}
+          export WINE=false
+          export ARCH=${{ matrix.ARCH }}
           ls -l
           mkdir -p tmp/build
-          export WINE=false
           tools/build-prepare.sh
           env WINE=false tools/build-deepin.sh ${{ steps.tag.outputs.tag }}
 
