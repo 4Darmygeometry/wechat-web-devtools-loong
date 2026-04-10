@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x]
-        ARCH: ['x86_64', 'loong64']
+        ARCH: ['x64', 'loongarch64']
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -48,6 +48,7 @@ jobs:
         run: |
           export WINE=false
           export ACTION_MODE=true
+          export ARCH=${{ matrix.ARCH }}
           # tar.gz AppImage
           ls -l
           mkdir -p tmp/build

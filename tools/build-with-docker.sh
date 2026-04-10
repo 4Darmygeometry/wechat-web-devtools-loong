@@ -3,6 +3,7 @@
 root_dir=$(cd `dirname $0`/.. && pwd -P)
 echo "$(id -u):$(id -g)"
 
+# 如果传入了 --arch 参数，使用它；否则使用默认架构
 arch=$(node "$root_dir/tools/parse-config.js" --get-arch $@)
 
 image="msojocs/wechat-devtools-build:v1.0.6"
@@ -17,4 +18,4 @@ docker run --rm -i \
     -w /workspace \
     -v "$root_dir:/workspace" \
     $image \
-    bash ./tools/setup-wechat-devtools.sh $@
+    bash ./tools/setup-wechat-devtools.sh --arch $arch $@

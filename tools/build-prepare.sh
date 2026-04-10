@@ -21,7 +21,17 @@ store_dir="$tmp_dir/build"
 mkdir -p $store_dir
 rm -rf nwjs package.nw
 if [[ "$WINE" != 'true' ]];then
-  tar -zxf wechat-devtools-*.src/src-linux.tar.gz -C .
+  # 使用特定架构的 artifacts
+  if [[ -n "$ARCH" ]]; then
+    tar -zxf wechat-devtools-${ARCH}.src/src-linux.tar.gz -C .
+  else
+    # 回退到第一个找到的 artifact
+    tar -zxf $(ls -1 wechat-devtools-*.src/src-linux.tar.gz | head -1) -C .
+  fi
 else
-  tar -zxf wechat-devtools-*.src/src-wine.tar.gz -C .
+  if [[ -n "$ARCH" ]]; then
+    tar -zxf wechat-devtools-${ARCH}.src/src-wine.tar.gz -C .
+  else
+    tar -zxf $(ls -1 wechat-devtools-*.src/src-wine.tar.gz | head -1) -C .
+  fi
 fi
