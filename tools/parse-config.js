@@ -3,6 +3,12 @@ const args = process.argv.slice(2);
 const { exit } = require("process");
 const config = require("../conf/config.json");
 
+// 架构别名映射
+const archAliases = {
+    'x86_64': 'x64',
+    'amd64': 'x64',
+    'loong64': 'loongarch64',
+};
 
 // 16.17.0后可以使用util.parseArgs，目前是16.11.0
 const options = {
@@ -40,14 +46,21 @@ const options = {
 const configArg = {
     arch: process.arch,
 }
+
+// 标准化架构名称
+function normalizeArch(arch) {
+    return archAliases[arch] || arch;
+}
+
 for (let i = 0; i < args.length; i++) {
     if (options[args[i]]) {
         if (options[args[i]].type === 'string') {
             i++;
             if (i < args.length) {
                 if (args[i - 1] === '--arch') {
-                    if (args[i] === 'x64' || args[i] === 'loongarch64' || args[i] === 'arm64') {
-                        configArg.arch = args[i];
+                    const normalizedArch = normalizeArch(args[i]);
+                    if (normalizedArch === 'x64' || normalizedArch === 'loongarch64' || normalizedArch === 'arm64') {
+                        configArg.arch = normalizedArch;
                     } else {
                         console.error(`Invalid value for option --arch: ${args[i]}`);
                         exit(1);
